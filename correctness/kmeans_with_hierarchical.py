@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 29 10:08:05 2021
-
-@author: mavroudo
+Combine kmeans with hierarchical clustering for better results
 """
 
 import matplotlib.pyplot as plt
