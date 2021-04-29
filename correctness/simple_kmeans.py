@@ -33,8 +33,8 @@ def plot_clusters(points,labels):
     plt.xlabel('x')
     plt.show()
 
-#file="data/datasets/data_1/data1.txt"
-file="data/datasets/generated_datasets/data_1000_5.txt"
+file="data/datasets/data_1/data1.txt"
+#file="data/datasets/generated_datasets/data_1000_5.txt"
 points =get_data(file)
 X=np.array(points)
 kmeans=KMeans(n_clusters=5, init='k-means++',precompute_distances=True,verbose=1,n_jobs=-1,algorithm="elkan").fit(X)

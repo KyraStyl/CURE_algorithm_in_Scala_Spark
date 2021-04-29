@@ -45,7 +45,7 @@ kmeans=KMeans(n_clusters=100, init='k-means++',precompute_distances=True,verbose
 #Then we use hierarchical clustering to their centers
 #ward minimizes the variance of the clusters being merged => better results
 #average has also good performance. Single and maximum combine the 2 left clusters
-hierarchical = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='maximum').fit(kmeans.cluster_centers_)
+hierarchical = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='average').fit(kmeans.cluster_centers_)
 new_labels=combine_results_clustering(kmeans,hierarchical)
 
 plot_clusters(points,new_labels)
