@@ -28,7 +28,12 @@ object Main extends App{
       val points = sc.textFile(filename).map(line => new Point(line))
       println(points.count() + " elements loaded.")
 
-      points.foreach(println)
+      //points.foreach(println)
+
+      val perc = 0.5
+      val sample = points.sample(false, perc)
+      println("Sample size = " + sample.count)
+
     } catch {
     case _: org.apache.hadoop.mapred.InvalidInputException => println("This file could not be found!")
     }
