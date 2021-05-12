@@ -6,9 +6,13 @@ class MinHeap(val clusters:List[CureCluster]){
 
 //  private val pq = mutable.PriorityQueue.empty[CureCluster].reverse
   private val pq:PriorityQueue[CureCluster] = new PriorityQueue[CureCluster]();
+  private val map:mutable.HashMap[Long,CureCluster] = new mutable.HashMap[Long,CureCluster]();
 
   def build_heap():Unit = {
     pq.addAll(clusters.asJava)
+    clusters.foreach(cluster=>{
+      map(cluster.c_id)=cluster
+    })
   }
 
   /**
@@ -16,34 +20,45 @@ class MinHeap(val clusters:List[CureCluster]){
    * @return
    */
   def extract_min():CureCluster={
-    pq.poll()
+    val cluster = pq.poll()
+    map.remove(cluster.c_id)
+    cluster
   }
 
-  def get(id:Long):CureCluster={
-    val c =pq.iterator().asScala.filter(_.c_id==id).toList.head
-    this.delete(id)
-    c
+  def get(id:Long):Option[CureCluster]={
+    map.get(id)
   }
 
   def delete(id:Long):Boolean = {
-    pq.remove(new CureCluster(id,new Array[Point](1).toList,new Array[Double](1).toList,0,0))
+    var removed = false
+    if(map.contains(id)){
+      val c = map.remove(id)
+      removed = pq.remove(c.getOrElse(new CureCluster(id,new Array[Point](1).toList,new Array[Point](1).toList,new Array[Double](1).toList,0,0)))
+    }
+    removed
   }
 
   def insert(c:CureCluster):Unit={
     pq.add(c)
+    map(c.c_id)=c
   }
 
   def relocate(x:CureCluster):Unit={
     this.delete(x.c_id)
     this.insert(x)
+    if(map.contains(x.c_id)) {
+      map.update(x.c_id, x)
+    }else{
+      map(x.c_id)=x
+    }
   }
 
   def size():Int={
-    pq.size
+    map.size
   }
 
   def getIterable():Iterable[CureCluster]={
-    pq.asScala
+    map.values
   }
 
 

@@ -29,11 +29,19 @@ class MinHeapTest extends AnyFunSuite with BeforeAndAfterAll{
     val minHeap:MinHeap = new MinHeap(clusters)
     minHeap.build_heap()
     val min = minHeap.extract_min()
+    assert(minHeap.size()==4)
     val closest = minHeap.get(min.closest)
-    minHeap.delete(closest.c_id)
+    assert(minHeap.size()==4)
+    if(closest.nonEmpty){
+      minHeap.delete(closest.get.c_id)
+    }
+    assert(minHeap.size()==3)
     minHeap.delete(4)
+    assert(minHeap.size()==2)
     min.distance=0.02
     minHeap.relocate(min)
+    assert(minHeap.size()==3)
+
 
   }
 

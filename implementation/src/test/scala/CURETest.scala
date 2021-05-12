@@ -13,9 +13,9 @@ class CURETest extends AnyFunSuite {
 
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
-    val points = sc.textFile("data.txt").map(line => new Point(line))
+    val points = sc.textFile("test.txt").map(line => new Point(line))
 
-    val clusters = CURE.initializeClusters(points.collect().toList)
+    val clusters = CURE.cure_algorithm(points.collect().toList,2,2,0.2,0.3)
     print("Hey")
 
 

@@ -4,7 +4,10 @@ import org.apache.spark.sql.SparkSession
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
+
+
 object CURE {
+  case class Response (clusters:List[CureCluster], outliers:List[Point])
 
   def initializeClusters(points: List[Point]): List[CureCluster] = {
     val spark = SparkSession.builder.getOrCreate()
@@ -67,52 +70,86 @@ object CURE {
   }
 
 
-  def cure_algorithm(points: List[Point], k: Int, c: Int, a: Double, threshold: Double): List[CureCluster] = {
+  def cure_algorithm(points: List[Point], k: Int, c: Int, a: Double, threshold: Double): Response = {
     val clusters = this.initializeClusters(points)
     val minHeap = new MinHeap(clusters)
+    val outlierPoints:ListBuffer[Point] = new ListBuffer[Point]();
     minHeap.build_heap()
+    val check_for_outliers = Math.floor(clusters.size/10).toInt
     while (minHeap.size() > k) {
+      if(minHeap.size()==check_for_outliers){
+        remove_outliers(minHeap,1).foreach(op=>{ //remove all clusters with size less or equal to 2
+          outlierPoints+=op
+        })
+      }
       val u = minHeap.extract_min()
       val v = minHeap.get(u.closest)
-      minHeap.delete(v.c_id)
-      val w = merge(u,v,c,a) // the closest cluster or the distance hasn't been determined yet
-      minHeap.getIterable().foreach(x=>{
-        if(w.closest == -1 || Utils.distanceClusters(w,x)<Utils.distanceClusters(w,minHeap.get(w.closest))) {
+      minHeap.delete(v.get.c_id)//TODO:check
+      val w = merge(u,v.get,c,a) // the closest cluster or the distance hasn't been determined yet //TODO:check
+      for(x:CureCluster <- minHeap.getIterable().toList){
+        if(w.closest == -1) {//TODO:check
           w.closest = x.c_id
+          w.distance = Utils.distanceClusters(w,x)
+        }else if(Utils.distanceClusters(w,x)<Utils.distanceClusters(w,minHeap.get(w.closest).get)){
+          w.closest = x.c_id
+          w.distance= Utils.distanceClusters(w,x)
         }
-        if(x.closest==u.c_id || x.closest== v.c_id){
-          if(Utils.distanceClusters(x,minHeap.get(x.closest))<Utils.distanceClusters(w,x)){
-            x.closest = this.findClosestCluster(x,minHeap)
+        if(x.closest==u.c_id || x.closest== v.get.c_id){//TODO:check
+          if(x.distance<Utils.distanceClusters(w,x)){//TODO:check
+            val closest = this.findClosestCluster(x,minHeap)
+            x.closest = closest.c_id
+            x.distance = Utils.distanceClusters(x,closest)
           }else{
             x.closest=w.c_id
+            x.distance=Utils.distanceClusters(x,w)
           }
           minHeap.relocate(x)
-        }else if(Utils.distanceClusters(x,minHeap.get(x.closest))>Utils.distanceClusters(x,w)){
+        }else if(Utils.distanceClusters(x,minHeap.get(x.closest).get)>Utils.distanceClusters(x,w)){//TODO:check
           x.closest=w.c_id
+          x.distance=Utils.distanceClusters(x,w)
           minHeap.relocate(x)
         }
-        minHeap.insert(x)
-      })
+        minHeap.relocate(x)
+      }
+      minHeap.insert(w)
     }
-    minHeap.getIterable().toList
-
-
+    Response(minHeap.getIterable().toList,outlierPoints.toList)
   }
 
-  private def findClosestCluster(x:CureCluster,minHeap: MinHeap): Long ={
+  private def findClosestCluster(x:CureCluster,minHeap: MinHeap): CureCluster ={
     minHeap.getIterable()
       .filter(_.c_id!=x.c_id)
       .map(c=>{
-        (c.c_id,Utils.distanceClusters(c,x))
+        (c.c_id,Utils.distanceClusters(c,x),c)
       })
       .minBy(_._2)
-      ._1
+      ._3
   }
 
   private def calculateMean(m1: List[Double], s1: Int, m2: List[Double], s2: Int): List[Double] = {
     m1.zip(m2).map(pair => {
       (s1 * pair._1 + s2 * pair._2) / (s1 + s2)
     })
+  }
+
+  private def remove_outliers(minHeap:MinHeap,threshold:Int): List[Point] ={
+    val outlier_clusters:List[CureCluster] = minHeap.getIterable().filter(_.points.size<=threshold).toList
+    val ids = outlier_clusters.map(_.c_id)
+    ids.foreach(id=>{
+      minHeap.delete(id)
+    })
+    minHeap.getIterable().foreach(c=>{
+      if(ids.contains(c.closest)){
+        val closest = this.findClosestCluster(c,minHeap)
+        c.closest = closest.c_id
+        c.distance=Utils.distanceClusters(c,closest)
+        minHeap.relocate(c)
+      }
+    })
+
+    outlier_clusters.flatMap(_.points)
+
+
   }
 
 
