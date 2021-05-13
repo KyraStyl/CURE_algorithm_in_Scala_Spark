@@ -1,6 +1,6 @@
 object Utils {
 
-  def euclideanDistance(p1:Point,p2:Point):Double={
+  def euclideanDistanceP(p1:Point,p2:Point):Double={
     this.euclideanDistance(p1.values,p2.values)
   }
 
@@ -13,7 +13,7 @@ object Utils {
   def distanceClusters(c1:CureCluster,c2:CureCluster):Double={
     c1.repr.flatMap(p1=>{
       c2.repr.map(p2=>{
-        this.euclideanDistance(p1,p2)
+        this.euclideanDistanceP(p1,p2)
       })
     }).min
   }

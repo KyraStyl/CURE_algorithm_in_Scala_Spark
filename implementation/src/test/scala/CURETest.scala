@@ -13,11 +13,15 @@ class CURETest extends AnyFunSuite {
 
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
-    val points = sc.textFile("test.txt").map(line => new Point(line))
+    val points = sc.textFile("data1.txt").map(line => new Point(line))
+    val perc = 0.05
+    val sample = points.sample(false, perc)
 
-    val clusters = CURE.cure_algorithm(points.collect().toList,2,2,0.2,0.3)
+    val init_Clusters = CURE.initializeClusters(sample.collect().toList)
+    val original_clusters = CURE.cure_algorithm(init_Clusters,5,5,0.2)
+    val pass_all = CURE.pass_data(points,original_clusters.clusters,3) //outliers 3 times the stdev from mean
     print("Hey")
 
-
   }
+
 }
