@@ -34,9 +34,11 @@ object Main extends App{
       val sample = points.sample(false, perc)
       println("Sample size = " + sample.count)
 
-      val clusters = CURE.initializeClusters(points.collect().toList)
-      val resp = CURE.cure_algorithm(clusters,5,5,0.2)
+//      val clusters = CURE.initializeClusters(points.collect().toList)
+//      val resp = CURE.cure_algorithm(clusters,5,5,0.2)
+      val resp = CURE.parallelCure(sample,5,5,0.2)
       val pass_all = CURE.pass_data(points,resp.clusters,3)
+//      pass_all.points.collect()
       println(resp.clusters.map(x=>(x.c_id,x.points.count(_=>true),x.repr.count(_=>true))))
 
       KmeansWithHierarchical.run()

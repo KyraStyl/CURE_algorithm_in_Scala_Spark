@@ -157,13 +157,18 @@ object CURE {
   }
 
   private def findClosestCluster(x:CureCluster,minHeap: MinHeap): CureCluster ={
-    minHeap.getIterable()
+    val others = minHeap.getIterable()
       .filter(_.c_id!=x.c_id)
       .map(c=>{
         (c.c_id,Utils.distanceClusters(c,x),c)
       })
-      .minBy(_._2)
-      ._3
+      if (others.nonEmpty){
+        others.minBy(_._2)
+          ._3
+      }else{
+        null
+      }
+
   }
 
   private def calculateMean(m1: List[Double], s1: Int, m2: List[Double], s2: Int): List[Double] = {
