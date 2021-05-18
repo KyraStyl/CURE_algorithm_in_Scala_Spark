@@ -2,7 +2,12 @@ import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.clustering.{KMeans,BisectingKMeans, KMeansModel}
 import org.apache.spark.sql.SparkSession
 
+import java.io.PrintWriter
+import java.io.File
+
 object KmeansWithHierarchical {
+
+
 
   def run(): Unit ={
     val file = "data1.txt"
@@ -39,9 +44,8 @@ object KmeansWithHierarchical {
 
     clusterCount.toList.foreach{ println }
 
-
     // Clustering the data into 6 clusters by BisectingKMeans.
-    val bkm = new BisectingKMeans().setK(6)
+    val bkm = new BisectingKMeans().setK(numClusters)
     val model = bkm.run(VectorData)
 
     // Show the compute cost and the cluster centers
@@ -49,6 +53,19 @@ object KmeansWithHierarchical {
     model.clusterCenters.zipWithIndex.foreach { case (center, idx) =>
       println(s"Cluster Center ${idx}: ${center}")}
 
+    val predict = model.predict(VectorData)
+    val totalRDD = VectorData.zip(predict)
+
+    val data = totalRDD.map(x=>(x._1.toArray,x._2)).collect()
+
+    val outfile = new File("outputFromBKM.txt")
+    val pw = new PrintWriter(outfile)
+
+    for(x<-data){
+      pw.write(x._1(0).toString+","+x._1(1)+","+x._2.toString)
+      pw.write("\n")
+    }
+    pw.close()
 
   }
 
