@@ -125,7 +125,7 @@ object CURE {
 
   /**
    * Assign each point to the closest representative
-   * Report as outleirs the points that deciates more than n*stdev from the mean value of all the distances
+   * Report as outliers the points that deciates more than n*stdev from the mean value of all the distances
    * @param points
    * @param clusters
    * @param n

@@ -30,19 +30,27 @@ object Main extends App{
 
       //points.foreach(println)
 
-      val perc = 0.5
+      val perc = 0.01
       val sample = points.sample(false, perc)
       println("Sample size = " + sample.count)
+      val p = sample.take(1).head.toString
+      println(p)
 
-//      val clusters = CURE.initializeClusters(points.collect().toList)
-//      val resp = CURE.cure_algorithm(clusters,5,5,0.2)
-      val resp = CURE.parallelCure(sample,5,5,0.2)
-      val pass_all = CURE.pass_data(points,resp.clusters,3)
-//      pass_all.points.collect()
-      println(resp.clusters.map(x=>(x.c_id,x.points.count(_=>true),x.repr.count(_=>true))))
 
-      KmeansWithHierarchical.run()
+      var resp: CURE.Response = null
+      var pass_all: CURE.ResponseRDD = null
+      val alpha = 0.3
+      val repr = 50
+      spark.time({
+        resp = CURE.parallelCure(sample, 5, repr, alpha)
+        println(resp.clusters.map(x=>(x.c_id,x.points.count(_=>true),x.repr.count(_=>true))))
+        pass_all = CURE.pass_data(points,resp.clusters,3)
+        println(pass_all.points.count())
+        println(pass_all.outliers.count())
+      })
 
+      val directoryName = "results/"+"p"+points.count()+",perc"+perc+",alpha"+alpha+",repr"+repr
+      Utils.writeToFile(pass_all,directoryName)
     } catch {
     case _: org.apache.hadoop.mapred.InvalidInputException => println("This file could not be found!")
     }

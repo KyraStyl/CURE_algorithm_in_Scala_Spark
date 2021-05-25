@@ -4,8 +4,7 @@ class Point (var line: String) extends Serializable{
   var values = cols.toList.map(_.toDouble)
 
   override def toString: String = {
-    val str="Element : "+values.toString()+""
-    str
+    line
   }
 
   def equals(other: Point): Boolean = {
