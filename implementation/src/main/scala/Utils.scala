@@ -52,7 +52,7 @@ object Utils {
   def writeToFile(data: CURE.ResponseRDD,dir:String): Unit ={
     val directory = new File(dir)
     if (! directory.exists()) {
-      directory.mkdir()
+      directory.mkdirs()
     }
     writePoints(data.points,dir)
     writeOutliers(data.outliers,dir)
