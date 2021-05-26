@@ -27,35 +27,40 @@ object Utils {
     //using saveAsTextFile
     //data.map(x => x._1.toString+","+x._2.toString).coalesce(1).saveAsTextFile("test")
 
-    val outfile = new File(dir+"/points.txt")
+    val directory = new File(dir)
+    if (! directory.exists()) {
+      directory.mkdirs()
+    }
+    val outfile = new File(dir + "/points.txt")
     val pw = new PrintWriter(outfile)
 
-    for(x<-data.collect()){
-    pw.write(x._1.toString+","+x._2.toString)
-    pw.write("\n")
+    for (x <- data.collect()) {
+      pw.write(x._1.toString + "," + x._2.toString)
+      pw.write("\n")
     }
     pw.close()
   }
 
 
-   def writeOutliers(data:RDD[Point], dir: String): Unit ={
-    val outfile = new File(dir+"/outliers.txt")
+  def writeOutliers(data: RDD[Point], dir: String): Unit = {
+
+    val outfile = new File(dir + "/outliers.txt")
     val pw = new PrintWriter(outfile)
 
-    for(x<-data.collect()){
+    for (x <- data.collect()) {
       pw.write(x.toString)
       pw.write("\n")
     }
     pw.close()
   }
 
-  def writeToFile(data: CURE.ResponseRDD,dir:String): Unit ={
+  def writeToFile(data: CURE.ResponseRDD, dir: String): Unit = {
     val directory = new File(dir)
-    if (! directory.exists()) {
+    if (!directory.exists()) {
       directory.mkdirs()
     }
-    writePoints(data.points,dir)
-    writeOutliers(data.outliers,dir)
+    writePoints(data.points, dir)
+    writeOutliers(data.outliers, dir)
   }
 
 }

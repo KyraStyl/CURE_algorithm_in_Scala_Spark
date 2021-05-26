@@ -1,6 +1,7 @@
 import Utils.{euclideanDistance, euclideanDistanceP}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
+
 import Numeric.Implicits._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -63,16 +64,24 @@ object CURE {
         newRepresentatives += p
       })
     } else {
-      newRepresentatives.appendAll(newPoints)
+      val n:List[Point] = newPoints.map(point => {
+        val newCoordinates = point.values.zip(newMean)
+          .map(pair => {
+            pair._1 + a * pair._2
+          })
+        new Point(newCoordinates.mkString(","))
+      })
+      newRepresentatives.appendAll(n)
     }
     new CureCluster(u.c_id, newRepresentatives.toList, newPoints, newMean, -1, -1)
 
   }
 
   def parallelCure(points:RDD[Point],k: Int, c: Int, a: Double): Response ={
+    points.repartition(16)
     val all_clusters = points.mapPartitions(partition=>{
       val clusters = this.initializeClusters(partition.toList)
-      val cure = this.cure_algorithm(clusters,k,c,a)
+      val cure = this.cure_algorithm(clusters,k*2,c,a)
       cure.clusters.toIterator
     })
     cure_algorithm(all_clusters.collect().toList,k,c,a)
