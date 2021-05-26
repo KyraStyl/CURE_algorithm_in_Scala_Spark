@@ -27,6 +27,9 @@ if __name__ == "__main__":
     file = sys.argv[1] #has format x,y,label
     ground_truth = sys.argv[2] #has format labels
     
+    #file="demo_data.txt"
+    #ground_truth="demo_gt.txt"
+    
     #the ground truth has to be checked as sets and not labels 1 by 1
     points=[]
     with open(file,"r") as f:
@@ -37,7 +40,7 @@ if __name__ == "__main__":
     with open(ground_truth,"r") as f:
         for line in f:
             true_labels.append(line.strip())
-            
+    k=len(list(set(true_labels)))        
     print(find_score(points,true_labels))
     
     

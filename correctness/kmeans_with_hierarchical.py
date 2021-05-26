@@ -37,7 +37,7 @@ def combine_results_clustering(kmeans,hierarchical):
     
     
 #First perform kmeans with increased k, here we use k =100   
-file="data/datasets/data_1/data1.txt"
+file="data/datasets/data_2/data1.txt"
 points =get_data(file)
 X=np.array(points)
 kmeans=KMeans(n_clusters=100, init='k-means++',precompute_distances=True,verbose=1,n_jobs=-1,algorithm="elkan").fit(X)
@@ -45,7 +45,10 @@ kmeans=KMeans(n_clusters=100, init='k-means++',precompute_distances=True,verbose
 #Then we use hierarchical clustering to their centers
 #ward minimizes the variance of the clusters being merged => better results
 #average has also good performance. Single and maximum combine the 2 left clusters
-hierarchical = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='complete').fit(kmeans.cluster_centers_)
+hierarchical = AgglomerativeClustering(n_clusters=5, affinity='euclidean', linkage='average').fit(kmeans.cluster_centers_)
 new_labels=combine_results_clustering(kmeans,hierarchical)
 
 plot_clusters(points,new_labels)
+with open("ground_truth_big.txt","w") as f:
+    for l  in new_labels:
+        f.write(str(l)+"\n")
