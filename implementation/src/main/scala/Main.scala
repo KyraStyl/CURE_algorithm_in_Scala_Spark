@@ -8,7 +8,6 @@ object Main extends App{
 
   // Create spark configuration
   val sparkConf = new SparkConf()
-    .setMaster("local[*]")
     .setAppName("CureAlgorithm")
   val spark = SparkSession.builder().config(sparkConf).getOrCreate()
   val sc = spark.sparkContext
@@ -16,36 +15,28 @@ object Main extends App{
   Logger.getLogger("org").setLevel(Level.OFF)
   Logger.getLogger("akka").setLevel(Level.OFF)
 
-  if (args.length == 0) {
-    println("No arguments passed !")
+  if (args.length != 6) {
+    println("The programm takes 6 parameters. \n\t1.Input dataset txt\n\t2.Number of clusters (k)\n\t3.Shrink factor α\n\t" +
+      "4.Number of representative points per cluster (c)\n\t5.Standard deviations from mean value (n)\n\t" +
+      "6.Sample size, as percentage of the original dataset")
   } else {
     try {
       val filename = args(0)
-      println(filename)
-
+      val k = args(1).toInt
+      val alpha = args(2).toDouble
+      val repr = args(3).toInt
+      val n = args(4).toDouble
+      val perc = args(5).toDouble
       println("Reading from input file : " + filename + " . . .")
-
       val points = sc.textFile(filename).map(line => new Point(line))
       println(points.count() + " elements loaded.")
-
-      //points.foreach(println)
-
-      val perc = 0.3
       val sample = points.sample(false, perc)
-      println("Sample size = " + sample.count())
-
       var resp: CURE.Response = null
       var pass_all: CURE.ResponseRDD = null
-      val alpha = 0.5
-      val repr = 20
       spark.time({
-//        resp = CURE.parallelCure(sample, 5, repr, alpha)
         val cint=CURE.initializeClusters(sample.collect().toList)
-        resp=CURE.cure_algorithm(cint,5,repr,alpha)
-        println(resp.clusters.map(x=>(x.c_id,x.points.count(_=>true),x.repr.count(_=>true))))
-        pass_all = CURE.pass_data(points,resp.clusters,3)
-        println(pass_all.points.count())
-        println(pass_all.outliers.count())
+        resp=CURE.cure_algorithm(cint,k,repr,alpha)
+        pass_all = CURE.pass_data(points,resp.clusters,n)
       })
 
       val directoryName = "results/"+"p"+points.count()+",perc"+perc+",alpha"+alpha+",repr"+repr
@@ -55,7 +46,6 @@ object Main extends App{
           (y,x.c_id)
         })
       }))
-
       Utils.writeToFile(pass_all,directoryName)
       Utils.writePoints(x,directory2)
     } catch {
