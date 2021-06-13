@@ -16,7 +16,7 @@ object Main extends App{
   Logger.getLogger("akka").setLevel(Level.OFF)
 
   if (args.length != 6) {
-    println("The programm takes 6 parameters. \n\t1.Input dataset txt\n\t2.Number of clusters (k)\n\t3.Shrink factor α\n\t" +
+    println("The program takes 6 parameters. \n\t1.Input dataset txt\n\t2.Number of clusters (k)\n\t3.Shrink factor α\n\t" +
       "4.Number of representative points per cluster (c)\n\t5.Standard deviations from mean value (n)\n\t" +
       "6.Sample size, as percentage of the original dataset")
   } else {
