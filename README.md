@@ -28,4 +28,4 @@ spark-submit --master local[8] curealgorithm_2.11-0.1.jar data1.txt 5 0.2 20 3.5
 ```
 
 ## Output
-The output is consisted of 3 files. One that contains the outliers, one with the clustering results and one with the representative points per cluster. The name of the output directory is results/p**#points**,perc**sample size**,alpha**shrink factor**,repr**#repr per cluster**/
+The output is consisted of 3 files. One that contains the outliers, one with the clustering results and one with the representative points per cluster. The name of the output directory is results/p **#points**,perc **sample size**,alpha **shrink factor**,repr **#repr per cluster** /
