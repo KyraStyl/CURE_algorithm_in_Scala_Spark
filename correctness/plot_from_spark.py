@@ -33,7 +33,7 @@ def plot_clusters(points):
 
 if __name__ == "__main__":
     #filename=sys.argv[1] #pass the file from command line
-    filename = "repr/points.txt"
+    filename = "../implementation/results/p16924,perc0.3,alpha0.5,repr20/points.txt"
     #filename = "points.txt"
     print("the plot will be saved in the same file as this script, with the name results.png")
     data=get_data(filename)

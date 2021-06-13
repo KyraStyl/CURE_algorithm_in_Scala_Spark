@@ -30,17 +30,14 @@ object Main extends App{
 
       //points.foreach(println)
 
-      val perc = 1
+      val perc = 0.3
       val sample = points.sample(false, perc)
-      println("Sample size = " + sample.count)
-      val p = sample.take(1).head.toString
-      println(p)
-
+      println("Sample size = " + sample.count())
 
       var resp: CURE.Response = null
       var pass_all: CURE.ResponseRDD = null
-      val alpha = 0.3
-      val repr = 10
+      val alpha = 0.5
+      val repr = 20
       spark.time({
 //        resp = CURE.parallelCure(sample, 5, repr, alpha)
         val cint=CURE.initializeClusters(sample.collect().toList)

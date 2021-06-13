@@ -8,8 +8,10 @@ from sklearn.datasets import make_blobs
 import matplotlib.pyplot as plt
 
 if __name__=="__main__":
-    points = int(sys.argv[1])
-    number_of_clusters = int(sys.argv[2])
+    #points = int(sys.argv[1])
+    points=100000
+    #number_of_clusters = int(sys.argv[2])
+    number_of_clusters=5
     working_directory="datasets/generated_datasets/"
     filename="data_"+str(points)+"_"+str(number_of_clusters)
     #create dataset and ground truth
